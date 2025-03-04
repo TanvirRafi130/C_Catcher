@@ -8,10 +8,14 @@ public class PlayerMovement : MonoBehaviour
     public Animator animator;
     private Rigidbody rb;
     private Vector3 moveDirection;
+    bool canMove = true;
 
     [AnimatorParam("animator")] public string Catch;
-    bool isCatchCalled = false;
+
     [AnimatorParam("animator")] public string speed;
+    [AnimatorParam("animator")] public string trip;
+
+    bool isCatchCalled = false;
 
     void Start()
     {
@@ -20,6 +24,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            canMove = false;
+            Tripping();
+        }
         // Get input
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
@@ -32,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!canMove) return;
         // Apply movement
         rb.linearVelocity = new Vector3(moveDirection.x * moveSpeed, rb.linearVelocity.y, moveDirection.z * moveSpeed);
 
@@ -52,6 +63,21 @@ public class PlayerMovement : MonoBehaviour
             animator.SetFloat(speed, 0f);
             isCatchCalled = false;
         }
+    }
+
+    void Tripping()
+    {
+        Vector3 tripDirection = transform.forward + Vector3.up; // Move forward + jump
+        rb.AddForce(tripDirection.normalized * 5f, ForceMode.Impulse); // Apply force
+        isCatchCalled = false;
+        animator.SetFloat(speed, 0f);
+        animator.SetTrigger("trip");
+    }
+
+    public void AllowMovement()
+    {
+        canMove = true;
+
     }
 
 }
