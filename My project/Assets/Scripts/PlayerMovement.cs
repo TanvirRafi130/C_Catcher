@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     [AnimatorParam("animator")] public string trip;
 
     bool isCatchCalled = false;
+    bool canTrip = true;
 
     void Start()
     {
@@ -25,8 +26,9 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && canTrip)
         {
+            canTrip = false;
             canMove = false;
             Tripping();
         }
@@ -76,6 +78,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void AllowMovement()
     {
+        canTrip = true;
         canMove = true;
 
     }
