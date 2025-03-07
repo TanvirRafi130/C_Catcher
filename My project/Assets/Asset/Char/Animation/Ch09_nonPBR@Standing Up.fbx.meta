@@ -55,7 +55,7 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.97587717
+      - time: 1
         functionName: AllowMovement
         data: 
         objectReferenceParameter: {fileID: 11500000, guid: 412f440863b0ba0458cc35bdfbcad398, type: 3}

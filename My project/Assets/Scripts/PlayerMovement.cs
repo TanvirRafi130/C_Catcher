@@ -4,11 +4,13 @@ using NaughtyAttributes;
 public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
+    public float fastSpeed = 10f;
     public float rotationSpeed = 10f;
     public Animator animator;
     private Rigidbody rb;
     private Vector3 moveDirection;
     bool canMove = true;
+    [SerializeField]bool isFast = false;
 
     [AnimatorParam("animator")] public string Catch;
 
@@ -25,11 +27,22 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && canMove)
         {
             canMove = false;
             Tripping();
         }
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            Debug.LogError(true);
+            isFast = true;
+        }
+        else
+        {
+            Debug.LogError(false);
+            isFast = false;
+        }
+
         // Get input
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
@@ -44,7 +57,14 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!canMove) return;
         // Apply movement
-        rb.linearVelocity = new Vector3(moveDirection.x * moveSpeed, rb.linearVelocity.y, moveDirection.z * moveSpeed);
+        if (!isFast)
+        {
+            rb.linearVelocity = new Vector3(moveDirection.x * moveSpeed, rb.linearVelocity.y, moveDirection.z * moveSpeed);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector3(moveDirection.x * fastSpeed, rb.linearVelocity.y, moveDirection.z * fastSpeed);
+        }
 
         // Rotate towards movement direction
         if (moveDirection.sqrMagnitude > 0.001f) // Avoid jittering when not moving

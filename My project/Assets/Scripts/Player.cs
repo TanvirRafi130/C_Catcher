@@ -8,8 +8,16 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
-        if(instance==null) instance = this;
+        if (instance == null) instance = this;
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent<Ai>(out Ai ai))
+        {
+            Debug.LogError("caught");
+        }
+    }
 
 }
