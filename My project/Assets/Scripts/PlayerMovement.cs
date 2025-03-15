@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
 
     [AnimatorParam("animator")] public string speed;
     [AnimatorParam("animator")] public string trip;
+    [AnimatorParam("animator")] public string animationMulti;
 
     bool isCatchCalled = false;
 
@@ -34,12 +35,14 @@ public class PlayerMovement : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            Debug.LogError(true);
+            //Debug.LogError(true);
+            animator.SetFloat(animationMulti,2);
             isFast = true;
         }
         else
         {
-            Debug.LogError(false);
+            //Debug.LogError(false);
+              animator.SetFloat(animationMulti,1);
             isFast = false;
         }
 
