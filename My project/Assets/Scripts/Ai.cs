@@ -57,6 +57,7 @@ public class Ai : MonoBehaviour
 
     IEnumerator Move(Vector3 targetPos)
     {
+      /*   targetPos.y = transform.localPosition.y; // Keep the y position constant */
         isMoving = true;
         animator.SetTrigger(run);
         float stopDistance = 0.5f; // Allow slight inaccuracy to prevent infinite loops
@@ -64,14 +65,15 @@ public class Ai : MonoBehaviour
 
         while (Vector3.Distance(transform.position, targetPos) >= stopDistance)
         {
-            //  Debug.LogError(Vector3.Distance(transform.position, targetPos));
+            // Only move in XZ, keep Y velocity unchanged (let physics handle Y)
             Vector3 direction = (targetPos - transform.position).normalized;
-            rb.linearVelocity = direction * speed; // Move towards target
+            Vector3 velocity = new Vector3(direction.x * speed, rb.linearVelocity.y, direction.z * speed);
+            rb.linearVelocity = velocity;
             yield return null;
         }
 
         rb.linearVelocity = Vector3.zero;
-        rb.Sleep();
+        //rb.Sleep();
         isMoving = false;
         // Reset all triggers before setting new ones (loop through all parameters)
         for (int i = 0; i < animator.parameterCount; i++)
@@ -82,9 +84,9 @@ public class Ai : MonoBehaviour
                 animator.ResetTrigger(param.name);
             }
         }
-        if(animator.GetBool(idle) == true)
+        if(animator.GetBool(run) == true)
         {
-            animator.ResetTrigger(idle);
+            animator.ResetTrigger(run);
         }
         animator.SetTrigger(idle);
 
