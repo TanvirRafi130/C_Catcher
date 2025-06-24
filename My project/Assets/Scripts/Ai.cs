@@ -14,6 +14,8 @@ public class Ai : MonoBehaviour
     [SerializeField] Animator animator;
     [SerializeField, AnimatorParam("animator")] string idle;
     [SerializeField, AnimatorParam("animator")] string run;
+    Coroutine movingCoroutine;
+    Coroutine waitCoroutine;
     Rigidbody rb;
     Player player;
     bool isMoving = false;
@@ -25,6 +27,7 @@ public class Ai : MonoBehaviour
     void Start()
     {
         player = Player.Instance;
+        // movingCoroutine = Move(Vector3.zero); // Initialize the coroutine
 
     }
 
@@ -35,11 +38,18 @@ public class Ai : MonoBehaviour
         float distance = Vector3.Distance(this.transform.position, player.transform.position);
         // Debug.LogError(distance);
 
-        if (distance <= avoidDistance && !isMoving)
+        if (distance <= avoidDistance && isWaitOver /* && !isMoving */)
         {
+
+            StartCoroutine(WaitBeforeNewPath());
             Vector3 loc = GameManager.Instance.GeRandomLocation();
-            transform.DOLookAt(loc,0.2f);
-            StartCoroutine(Move(loc));
+            transform.DOLookAt(loc, 0.2f);
+            if (movingCoroutine != null)
+            {
+                StopCoroutine(movingCoroutine);
+                movingCoroutine = null;
+            }
+            movingCoroutine = StartCoroutine(Move(loc));
 
         }
 
@@ -63,9 +73,31 @@ public class Ai : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.Sleep();
         isMoving = false;
+        // Reset all triggers before setting new ones (loop through all parameters)
+        for (int i = 0; i < animator.parameterCount; i++)
+        {
+            var param = animator.GetParameter(i);
+            if (param.type == AnimatorControllerParameterType.Trigger)
+            {
+                animator.ResetTrigger(param.name);
+            }
+        }
+        if(animator.GetBool(idle) == true)
+        {
+            animator.ResetTrigger(idle);
+        }
         animator.SetTrigger(idle);
 
-        //  Debug.LogError("eccc"); // Now this will execute!
+        Debug.LogError("eccc"); // Now this will execute!
+    }
+
+    bool isWaitOver = true;
+
+    IEnumerator WaitBeforeNewPath()
+    {
+        isWaitOver = false;
+        yield return new WaitForSeconds(1f); // Adjust the wait time as needed
+        isWaitOver = true;
     }
 
 
