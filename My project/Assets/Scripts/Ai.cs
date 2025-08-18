@@ -7,7 +7,7 @@ using DG.Tweening;
 public class Ai : MonoBehaviour
 {
 
-
+    public ChickenData data;
     [SerializeField] float avoidDistance = 5f;
     [SerializeField] float searchRadius = 10f; // Area to search for a random point
     [SerializeField] float speed = 5f; // Adjust speed as needed
@@ -40,24 +40,27 @@ public class Ai : MonoBehaviour
 
         if (distance <= avoidDistance && isWaitOver /* && !isMoving */)
         {
-
-            StartCoroutine(WaitBeforeNewPath());
-            Vector3 loc = GameManager.Instance.GeRandomLocation();
-            transform.DOLookAt(loc, 0.2f);
-            if (movingCoroutine != null)
-            {
-                StopCoroutine(movingCoroutine);
-                movingCoroutine = null;
-            }
-            movingCoroutine = StartCoroutine(Move(loc));
-
+            MoveCommand();
         }
 
     }
 
+    void MoveCommand()
+    {
+        StartCoroutine(WaitBeforeNewPath());
+        Vector3 loc = GameManager.Instance.GeRandomLocation(transform.forward);
+        transform.DOLookAt(loc, 0.2f);
+        if (movingCoroutine != null)
+        {
+            StopCoroutine(movingCoroutine);
+            movingCoroutine = null;
+        }
+        movingCoroutine = StartCoroutine(Move(loc));
+    }
+
     IEnumerator Move(Vector3 targetPos)
     {
-      /*   targetPos.y = transform.localPosition.y; // Keep the y position constant */
+        /*   targetPos.y = transform.localPosition.y; // Keep the y position constant */
         isMoving = true;
         animator.SetTrigger(run);
         float stopDistance = 0.5f; // Allow slight inaccuracy to prevent infinite loops
@@ -84,7 +87,7 @@ public class Ai : MonoBehaviour
                 animator.ResetTrigger(param.name);
             }
         }
-        if(animator.GetBool(run) == true)
+        if (animator.GetBool(run) == true)
         {
             animator.ResetTrigger(run);
         }
@@ -103,7 +106,42 @@ public class Ai : MonoBehaviour
     }
 
 
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent<Ai>(out Ai otherAi))
+        {
+            MoveCommand();
+        }
+
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent<Ai>(out Ai otherAi))
+        {
+            MoveCommand();
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.TryGetComponent<Player>(out Player player))
+        {
+            GameManager.Instance.onCatchingTarget.Invoke(data.type);
+            Destroy(gameObject);
+        }
+    }
 
 
+}
 
+public enum ChickenType
+{
+    normal = 0,
+}
+[System.Serializable]
+public class ChickenData
+{
+    public ChickenType type;
+    public int id;
 }
