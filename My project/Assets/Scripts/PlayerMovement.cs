@@ -1,5 +1,6 @@
 using UnityEngine;
 using NaughtyAttributes;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -7,10 +8,11 @@ public class PlayerMovement : MonoBehaviour
     public float fastSpeed = 10f;
     public float rotationSpeed = 10f;
     public Animator animator;
+    public PlayerInput playerInput;
     private Rigidbody rb;
     private Vector3 moveDirection;
     bool canMove = true;
-    [SerializeField]bool isFast = false;
+    [SerializeField] bool isFast = false;
 
     [AnimatorParam("animator")] public string Catch;
 
@@ -28,27 +30,30 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(KeyCode.Space) && canMove)
+        if (playerInput.actions["Jump"].triggered && canMove)
         {
             canMove = false;
             Tripping();
         }
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (playerInput.actions["Sprint"].IsPressed())
         {
             //Debug.LogError(true);
-            animator.SetFloat(animationMulti,2);
+            animator.SetFloat(animationMulti, 2);
             isFast = true;
         }
         else
         {
             //Debug.LogError(false);
-              animator.SetFloat(animationMulti,1);
+            animator.SetFloat(animationMulti, 1);
             isFast = false;
         }
 
+
         // Get input
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+/*         float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical"); */
+        float moveX = playerInput.actions["Move"].ReadValue<Vector2>().x;
+        float moveZ =  playerInput.actions["Move"].ReadValue<Vector2>().y;
 
         // Directly transform movement using camera rotation (ignores Y-axis)
         moveDirection = Camera.main.transform.rotation * new Vector3(moveX, 0f, moveZ);
